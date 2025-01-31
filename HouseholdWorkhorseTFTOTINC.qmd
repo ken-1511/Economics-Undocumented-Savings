@@ -1,0 +1,331 @@
+---
+title: "Untitled"
+format: html
+editor: visual
+---
+
+---
+title: "SIPP"
+format: html
+editor: visual
+---
+
+Loading SIPP 2023
+
+```{r loading data}
+rm(list=ls())
+options(scipen = 999)
+#Load the "data.table", "dplyr", and "bit64" libraries
+library(data.table)
+library(bit64)
+library(dplyr)
+library(tidyverse)
+
+# Load the SIPP dataset
+file <- c("pu2023.csv")
+#sipp_rep
+s <- fread(file, sep = "|", select = c(
+  "TMWKHRS", # average time worked
+  "WPFINWGT", # person-weight
+  "MONTHCODE", # month identifier
+  "SSUID", # house-case identifier
+  "TFTOTINC", # household income
+#  "THVAL_AST", # total value of assets
+  "EBORNUS", # born in the US
+  "ECITIZEN", # citizen
+  "ENATCIT", # how did they become a citizen
+  "TIMSTAT", # status when entered US
+  "THVAL_HOME",  # value of home property
+  "THNETWORTH" # networth
+  ))
+
+p <- fread("pu2022.csv", sep = "|", select = c(
+#  "THVAL_AST", # total value of assets in previous year
+  "MONTHCODE", # month identifier
+  "SSUID", # house-case identifier
+  "THVAL_HOME",  # value of home property
+  "THNETWORTH" # networth
+))
+```
+
+```{r}
+sipp <- s
+prev_yr <- p
+prev_yr <- prev_yr %>%
+  rename_with(~ paste0(., "_PREV"))
+setnames(prev_yr, old = "SSUID_PREV", 
+        new = "SSUID")
+setorder(sipp, SSUID, -MONTHCODE)
+setorder(prev_yr, SSUID, -MONTHCODE_PREV)
+sipp <- sipp[, .SD[1], by = SSUID]
+prev_yr <- prev_yr[, .SD[1], by = SSUID]
+
+sipp <- inner_join(
+  sipp,
+  prev_yr,
+  by = "SSUID",
+  relationship = "many-to-many")
+rm(prev_yr)
+
+# Create categories for natural-born, legal immigrant, and undocumented workers
+
+sipp <- sipp %>% 
+  mutate(
+    worker_status = case_when(
+      # Natural-born worker
+      EBORNUS == 1 ~ "Natural-Born",
+      ECITIZEN == 1 & ENATCIT %in% c(2, 3, 4, 5) ~ "Natural-Born",
+      
+      # Legal immigrant worker
+      EBORNUS == 2 & ECITIZEN == 1 ~ "Legal Immigrant",
+      EBORNUS == 2 & ECITIZEN == 2 & TIMSTAT == 1 ~ "Legal Immigrant",
+      
+      # Undocumented immigrant worker
+      EBORNUS == 2 & ECITIZEN == 2 & TIMSTAT == 2 ~ "Undocumented",
+      EBORNUS == 2 & ECITIZEN == 2 & is.na(TIMSTAT) ~ "Undocumented",
+      
+      # Default case
+      TRUE ~ "Other"))
+sipp <- sipp %>%
+  select(-EBORNUS, -ECITIZEN, -ENATCIT, -TIMSTAT)
+
+sipp <- sipp %>% 
+  mutate(FVS = THNETWORTH - THNETWORTH_PREV *1.07 - (THVAL_HOME - THVAL_HOME_PREV))
+
+sipp <- sipp %>% 
+  mutate(AMS = FVS / sum((1 + 0.07/12)^(12 + 1 - 1:12)))
+
+sipp$AMS[sipp$AMS < 0] <- 0
+
+sipp <- sipp %>% 
+  mutate(SR = AMS/TFTOTINC * 100)
+
+sipp <- sipp %>% 
+  filter(sipp$TMWKHRS > 0)
+sipp <- sipp %>% 
+  filter(sipp$SR >= 0 & sipp$SR < 100)
+
+#Preview the data
+head(sipp, 20)
+```
+
+```{r worker_status}
+
+print(table(sipp$worker_status))
+print(prop.table(table(sipp$worker_status)))
+
+```
+
+```{r}
+summary_income <- sipp %>%
+  group_by(worker_status) %>%
+  summarize(
+    count = n(),                             # Count of individuals in each group
+    mean_income = mean(TFTOTINC, na.rm = TRUE),
+    median_income = median(TFTOTINC, na.rm = TRUE),
+    sd = sd(TFTOTINC, na.rm = TRUE),
+    min = min(TFTOTINC, na.rm = TRUE),
+    Q1 = quantile(TFTOTINC, 0.25, na.rm = TRUE),
+    Q3 = quantile(TFTOTINC, 0.75, na.rm = TRUE),
+    max = max(TFTOTINC, na.rm = TRUE),
+  )
+summary_income
+```
+
+```{r household_income_boxplot}
+
+ggplot(sipp, aes(x = worker_status, y = TFTOTINC, fill = worker_status)) +
+  geom_boxplot(outlier.shape = NULL, alpha = 0.7) +
+  geom_point(data = summary_income, aes(x = worker_status, 
+                                          y = mean_income),
+             color = "red", size = 3) +
+  scale_y_continuous(limits = c(0, 36000), breaks = seq(0, 36000, by = 4000)) +
+  labs(
+    title = "Household Monthly Income Boxplot by Worker Status",
+    x = "Worker Status",
+    y = "Income ($)"
+  ) +
+  theme_minimal() +
+  theme(legend.position = "none")
+
+ggsave("Household_Income_Boxplot.png")
+```
+
+```{r}
+# Create the histogram
+ggplot(sipp, aes(x = TFTOTINC, fill = worker_status, color = worker_status,
+                 y = ..density.. * nrow(sipp))) +
+  geom_density(alpha = 0.3, adjust = 2) +
+  labs(
+    title = "Household Income Distribution by Worker Group",
+    x = "Income ($)",
+    y = "Density (Scaled)"
+  ) +
+  coord_cartesian(xlim = c(0, 50000)) +
+  theme_minimal() +
+  scale_fill_brewer(palette = "Set2") +
+  scale_color_brewer(palette = "Set2")
+ggsave("household_income_density_annotated.png")
+
+# Create the histogram
+ggplot(sipp, aes(x = log(TFTOTINC), fill = worker_status, color = worker_status)) +
+  geom_density(alpha = 0.3, adjust = 2) +
+  labs(
+    title = "Household Income Distribution by Worker Group (Logged)",
+    x = "log(Income)",
+    y = "Density"
+  ) +
+  theme_minimal() +
+  scale_fill_brewer(palette = "Set2") +
+  scale_color_brewer(palette = "Set2")
+ggsave("household_log_income_density.png")
+
+```
+
+```{r networth to monthly savings variables}
+```
+
+```{r average monthly savings}
+summary_SR <- sipp %>%
+  group_by(worker_status) %>%
+  summarize(
+    count = n(),                             # Count of individuals in each group
+    mean_SR = mean(SR, na.rm = TRUE),
+    median_SR = median(SR, na.rm = TRUE),
+    sd = sd(SR, na.rm = TRUE),
+    min = min(SR, na.rm = TRUE),
+    Q1 = quantile(SR, 0.25, na.rm = TRUE),
+    Q3 = quantile(SR, 0.75, na.rm = TRUE),
+    max = max(SR, na.rm = TRUE),
+  )
+summary_SR
+```
+
+```{r}
+# Create the histogram
+ggplot(sipp, aes(x = 100* (SR/100)^(1/2), fill = worker_status, color = worker_status)) +
+  geom_density(alpha = 0.3, adjust = 1) +
+  labs(
+    title = "Household Savings Rate Distribution by Status",
+    x = "square-root of Savings Rate %",
+    y = "Density"
+  ) +
+  scale_x_continuous(limits = c(0, 100), breaks = seq(0, 100, by = 10)) +
+  theme_minimal() +
+  scale_fill_brewer(palette = "Set2") +
+  scale_color_brewer(palette = "Set2")
+ggsave("household_sqrt_SR_density.png")
+
+# Create the histogram
+ggplot(sipp, aes(x = log(SR + 1), fill = worker_status, color = worker_status)) +
+  geom_density(alpha = 0.3, adjust = 1) +
+  labs(
+    title = "Household Savings Rate Distribution by Status (Logged)",
+    x = "Log(Savings Rate% + 1)",
+    y = "Density"
+  ) +
+  theme_minimal() +
+  scale_fill_brewer(palette = "Set2") +
+  scale_color_brewer(palette = "Set2")
+ggsave("household_log_SR_density.png")
+
+ggplot(sipp, aes(x = SR, fill = worker_status, color = worker_status)) +
+  geom_density(alpha = 0.3, adjust = 1) +
+  labs(
+    title = "Household Savings Rate Distribution by Status (Zoomed to 30%)",
+    x = "Savings Rate %",
+    y = "Density"
+  ) +
+  coord_cartesian(xlim = c(0, 30)) +
+  theme_minimal() +
+  scale_fill_brewer(palette = "Set2") +
+  scale_color_brewer(palette = "Set2")
+ggsave("household_SR_density.png")
+```
+
+```{r}
+ggplot(sipp, aes(x = 100 * (SR / 100)^(1 / 2), color = worker_status, fill = worker_status)) +
+  stat_ecdf(size = 1) + # Use stat_ecdf to calculate the CDF
+  labs(
+    title = "Cumulative Distribution of Household Savings Rate by Status",
+    x = "Square-root of Savings Rate %",
+    y = "Cumulative Probability"
+  ) +
+  scale_x_continuous(limits = c(0, 100), breaks = seq(0, 100, by = 10)) +
+  theme_minimal() +
+  scale_fill_brewer(palette = "Set2") +
+  scale_color_brewer(palette = "Set2")
+
+# Save the plot
+ggsave("household_sqrt_SR_cdf.png")
+
+ggplot(sipp, aes(x = SR, color = worker_status, fill = worker_status)) +
+  stat_ecdf(size = 1) + # Use stat_ecdf to calculate the CDF
+  labs(
+    title = "Cumulative Distribution of Household Savings Rate by Status",
+    x = "Savings Rate %",
+    y = "Cumulative Probability"
+  ) +
+  scale_x_continuous(limits = c(0, 100), breaks = seq(0, 100, by = 10)) +
+  theme_minimal() +
+  scale_fill_brewer(palette = "Set2") +
+  scale_color_brewer(palette = "Set2")
+
+# Save the plot
+ggsave("household_SR_cdf.png")
+```
+
+```{r}
+# 1. Density Plot with Zoomed Axis (Max 30% Savings)
+ggplot(sipp, aes(x = SR, fill = worker_status, color = worker_status)) +
+  geom_density(alpha = 0.3, adjust = 0.5) +
+  labs(
+    title = "Savings Rate Distribution by Status (Zoomed to 30%)",
+    x = "Savings Rate %",
+    y = "Density"
+  ) +
+  coord_cartesian(xlim = c(0, 30)) + # Zoom in on the x-axis
+  scale_fill_brewer(palette = "Set2") +
+  scale_color_brewer(palette = "Set2") +
+  theme_minimal()
+ggsave("density_plot_zoom_30_percent.png")
+
+# 2. Violin Plot with Zoomed Axis (Max 30% Savings)
+ggplot(sipp, aes(x = worker_status, y = SR, fill = worker_status)) +
+  geom_violin(trim = FALSE, alpha = 0.7) +
+  geom_boxplot(width = 0.1, outlier.size = 0.5, alpha = 0.5) +
+  labs(
+    title = "Savings Rate Distribution by Status (Zoomed to 30%)",
+    x = "Worker Status",
+    y = "Savings Rate %"
+  ) +
+  coord_cartesian(ylim = c(1.3, 30)) + # Zoom in on the y-axis
+  scale_fill_brewer(palette = "Set2") +
+  theme_minimal()
+ggsave("violin_plot_zoom_30_percent.png")
+
+```
+
+```{r}
+subset_data <- sipp %>%
+  filter(worker_status %in% c("Undocumented", "Natural-Born"))
+
+# Kolmogorov-Smirnov (KS) Test
+ks_test <- ks.test(
+  x = log(subset_data$SR[subset_data$worker_status == "Undocumented"] + 1),
+  y = log(subset_data$SR[subset_data$worker_status == "Natural-Born"] + 1),
+  alternative = "two.sided" # Tests for any difference in distributions
+)
+print("Kolmogorov-Smirnov Test Result:")
+print(ks_test)
+
+# Wilcoxon Rank-Sum Test (Mann-Whitney U Test)
+wilcox_test <- wilcox.test(
+  SR ~ worker_status,
+  data = subset_data,
+  exact = FALSE, # Faster for large sample sizes
+  correct = TRUE # Applies continuity correction
+)
+print("Wilcoxon Rank-Sum Test Result:")
+print(wilcox_test)
+```
