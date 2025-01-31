@@ -36,7 +36,8 @@ SIPP_wrangled <- SIPP_combined %>%
   # Create helper variables for selecting the main respondent.
   mutate(
     # Use a subset of key columns as a proxy for "information available"
-    info_count = rowSums(!is.na(across(c(TMWKHRS, HHNUMP, household_income, adjusted_net_worth, citizenship, year)))),
+#    info_count = rowSums(!is.na(across(c(TMWKHRS, HHNUMP, household_income, adjusted_net_worth, citizenship, year)))),
+    #desc(info_count), 
     # Create a binary indicator: 1 if non-citizen (i.e. citizenship not "Native"), 0 if "Native"
     non_citizen = if_else(citizenship == "Native", 0, 1)
   ) %>%
@@ -44,7 +45,7 @@ SIPP_wrangled <- SIPP_combined %>%
   select(-c(WPFINWGT, EBORNUS, ECITIZEN, ENATCIT, TIMSTAT, TFTOTINC, TPRLOANAMT, THNETWORTH, THVAL_HOME)) %>%
   # Group by household and year; select one record per group.
   group_by(SSUID, year) %>%
-  arrange(desc(info_count), desc(non_citizen), PNUM) %>% 
+  arrange(desc(non_citizen), PNUM) %>% 
   slice(1) %>% 
   ungroup() %>%
   # Remove helper variables.

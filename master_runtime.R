@@ -9,11 +9,11 @@ library(tidyverse)
 library(data.table)
 
 # Prompt the user for a folder path using a file explorer
-folder_path <- tcltk::tk_choose.dir(default = getwd(), caption = "Select Folder Containing SIPP CSV Files")
-if (is.na(folder_path) || folder_path == "") {
-  stop("No folder selected. Exiting.")
-}
-
+#folder_path <- tcltk::tk_choose.dir(default = getwd(), caption = "Select Folder Containing SIPP CSV Files")
+#if (is.na(folder_path) || folder_path == "") {
+#  stop("No folder selected. Exiting.")
+#}
+folder_path <- "C:/Users/dhoward/Documents/0196 Econ Thesis/SIPP"
 message("Selected folder: ", folder_path)
 
 # Source and run the sipp_processing.R script

@@ -23,7 +23,7 @@ process_year <- function(file_path) {
     "SSUID",        # Household-case identifier
     "TFTOTINC",     # Household income
     "TPRLOANAMT",   # Total personal loan amount
-    "HHNUMP",       # Number of people in the household
+#    "HHNUMP",       # Number of people in the household
     "EBORNUS",      # Born in the US
     "ECITIZEN",     # Citizenship status
     "ENATCIT",      # How citizenship was acquired
@@ -46,7 +46,3 @@ process_year <- function(file_path) {
   
   return(df)
 }
-
-# Clear any temporary objects from the global environment after sourcing this file,
-# leaving only the process_year function.
-rm(list = setdiff(ls(), "process_year"))
