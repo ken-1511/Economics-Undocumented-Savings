@@ -1,0 +1,48 @@
+SSUID
+Sample Unit Identifier
+A unique household ID that tracks the same household across multiple waves and interviews.
+
+PNUM
+Person Number
+A person-level identifier within a household (i.e., which individual within SSUID).
+
+MONTHCODE
+Reference Month Code
+Identifies the month (and sometimes year) of the interview or data collection.
+Lets you align data across different survey months for the same individuals.
+
+TMWKHRS
+Total Monthly/Weekly Hours Worked
+Represents how many hours a respondent usually works or worked during the reference period.
+
+WPFINWGT
+Person-Level Final Weight
+A weighting variable used to make the sample representative of the population at the person level.
+
+TFTOTINC
+Total Family (or Household) Income
+The sum of all income sources for the household/family in the reference month (or period).
+
+EBORNUS
+Born in the US Indicator
+A flag indicating if the individual is US-born (1) or not (0).
+
+ECITIZEN
+US Citizenship Status
+Indicates if the individual is a US citizen (1) or not (0).
+
+ENATCIT
+Naturalized Citizenship Indicator
+Describes how they became a citizen (e.g., by birth or naturalization). Often used alongside ECITIZEN.
+
+TIMSTAT
+Immigration Status at Entry
+Details the individual’s status when they first arrived in the US (e.g., undocumented, refugee, on a visa).
+
+THVAL_HOME
+Home Value
+The estimated market value of the household’s owned home.
+
+THNETWORTH
+Total Household Net Worth
+The difference between a household’s assets (cash, property, investments, etc.) and liabilities (mortgages, debts, etc.).
