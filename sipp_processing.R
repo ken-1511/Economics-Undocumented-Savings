@@ -1,62 +1,39 @@
-# SIPP_processing.R
+# sipp_processing.R
+# ------------------
+# Clear the environment except for the folder_path variable.
+rm(list = setdiff(ls(), "folder_path"))
 
-rm(list = ls())
-# Load necessary libraries
-library(tcltk)        # For file chooser (tk_choose.dir)
-library(data.table)   # For data manipulation
-library(dplyr)        # Tidyverse library
-library(tidyverse)    # Additional Tidyverse functionality
+# Load required libraries.
+library(tidyverse)
+library(data.table)
 
-# Source the second script that defines processing functions
+# Source process_year.R so that the process_year() function is available.
 source("process_year.R")
 
-# Prompt the user for the SIPP folder
-sipp_folder <- tk_choose.dir()
-if (is.na(sipp_folder)) {
-  stop("No folder was selected. Exiting.")
+# Ensure that folder_path is defined (it should be provided by master_runtime.R).
+if (!exists("folder_path")) {
+  stop("folder_path variable not set. Please set folder_path in master_runtime.R.")
 }
 
-# List all files in the folder
-sipp_files <- list.files(sipp_folder, full.names = TRUE)
-if (length(sipp_files) == 0) {
-  stop("No files found in the selected folder.")
+# List all SIPP CSV files in the specified folder.
+file_list <- list.files(path = folder_path, pattern = "\\.csv$", full.names = TRUE)
+
+# Initialize an empty list to store processed tibbles.
+sipp_list <- list()
+
+# Loop over each file and process it using the process_year() function.
+for (file in file_list) {
+  message("Processing file: ", file)
+  processed_data <- process_year(file)
+  sipp_list[[file]] <- processed_data
 }
 
-# Process each file in the folder
-for (file_path in sipp_files) {
-  message("Processing file: ", file_path)
-  update_sipp_data(file_path)
-}
+# Combine all processed tibbles into one tibble.
+SIPP_combined <- bind_rows(sipp_list)
 
-# 1) Filter to DECEMBER data ONLY
-sipp <- sipp[MONTHCODE == 12]
+# Optionally, save the combined tibble for later use (e.g., as an RDS file).
+saveRDS(SIPP_combined, file = file.path(folder_path, "sipp_combined.rds"))
+message("Processing complete. Combined data saved as 'sipp_combined.rds' in folder: ", folder_path)
 
-# 2) Convert the result to a tidyverse tibble
-sipp <- as_tibble(sipp)
-
-# 3) Remove unneeded variables
-sipp <- sipp %>% 
-  select(-WPFINWGT, -EBORNUS, -ECITIZEN, -ENATCIT, -TIMSTAT)
-
-# 4) Remove rows where TMWKHRS <= 0
-sipp <- sipp %>%
-  filter(TMWKHRS > 0)
-
-# 5) Adjust net worth by subtracting home value and adding mortgage
-sipp <- sipp %>%
-  mutate(THNETWORTH = THNETWORTH - THVAL_HOME + TPRLOANAMT)
-
-# 6) Calculate annual savings rate from previous December’s net worth
-#    Group by ID, sort by YEAR, then lag
-sipp <- sipp %>%
-  group_by(ID) %>%
-  arrange(YEAR, .by_group = TRUE) %>%
-  mutate(
-    THNETWORTH_LAG = lag(THNETWORTH),
-    ANNUAL_SAVINGS_RATE = (THNETWORTH - THNETWORTH_LAG) / (TFTOTINC * 12)
-  ) %>%
-  ungroup()
-
-# Save the final dataset
-saveRDS(sipp, file = "sipp_annual_december.rds")
-message("All files processed, December-only data saved as 'sipp_annual_december.rds'.")
+# Clear any temporary objects, leaving only SIPP_combined, folder_path, and process_year.
+rm(list = setdiff(ls(), c("SIPP_combined", "folder_path", "process_year")))

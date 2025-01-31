@@ -1,74 +1,52 @@
 # process_year.R
-
+# --------------
+# Load required libraries
 library(data.table)
-library(stringr)  # For easy extraction of digits (str_extract_all)
+library(dplyr)
+library(tidyverse)
 
-# Check if 'sipp' exists; if not, create an empty data.table
-if (!exists("sipp")) {
-  sipp <- data.table()
+# Define a function to process a single SIPP file.
+# This function reads the file, selects desired columns (including HHNUMP for household size and PNUM for Person identifier),
+# extracts a year from the file name (subtracting 1), overwrites PNUM with a unique identifier,
+# and filters the data.
+process_year <- function(file_path) {
+  # Extract a four-digit number (year) from the file name and subtract 1.
+  extracted_year <- as.numeric(str_extract(basename(file_path), "[0-9]{4}"))
+  year_val <- extracted_year - 1
+  
+  # Read the file using fread; select the desired columns.
+  dt <- fread(file_path, sep = "|", select = c(
+    "PNUM",         # Person identifier
+    "TMWKHRS",      # Average time worked
+    "WPFINWGT",     # Person weight
+    "MONTHCODE",    # Month identifier
+    "SSUID",        # Household-case identifier
+    "TFTOTINC",     # Household income
+    "TPRLOANAMT",   # Total personal loan amount
+    "HHNUMP",       # Number of people in the household
+    "EBORNUS",      # Born in the US
+    "ECITIZEN",     # Citizenship status
+    "ENATCIT",      # How citizenship was acquired
+    "TIMSTAT",      # Immigration entry status
+    "THVAL_HOME",   # Value of home property
+    "THNETWORTH"    # Net worth
+  ))
+  
+  # Convert the data.table to a tibble.
+  df <- as_tibble(dt)
+  
+  # Add the year variable (extracted from the filename, minus 1).
+  df <- df %>% mutate(year = year_val)
+  
+  # Keep only observations corresponding to month 12 and filter out records with negative values.
+  df <- df %>% 
+    filter(MONTHCODE == 12,
+           TFTOTINC >= 0,
+           TMWKHRS >= 0)
+  
+  return(df)
 }
 
-# Function to load and process a single SIPP file
-process_sipp_file <- function(file_path) {
-  # Load data
-  temp_data <- fread(
-    file_path,
-    sep = "|",
-    select = c(
-      "SSUID",       # Household identifier
-      "PNUM",        # Person identifier
-      "MONTHCODE",   # Month of data
-      "TMWKHRS",     # Hours worked
-      "WPFINWGT",    # Person weight
-      "TFTOTINC",    # Total household income
-      "EBORNUS",     # Born in US
-      "ECITIZEN",    # Citizenship status
-      "ENATCIT",     # How they became citizen
-      "TIMSTAT",     # Immigration status
-      "THVAL_HOME",  # Home value
-      "THNETWORTH",   # Net worth
-      "TPRLOANAMT"   # Mortgage Loan amount
-    )
-  )
-  
-  # Extract all digits from the filename
-  base_name <- basename(file_path)
-  year_digits <- str_extract_all(base_name, "\\d+")[[1]]  
-  # If multiple digit groups, pick the last set (commonly the year)
-  year_val <- as.numeric(tail(year_digits, 1))
-  
-  # Assign YEAR column
-  temp_data[, YEAR := year_val]
-  
-  # Create unique person ID
-  temp_data[, ID := paste0(SSUID, "-", PNUM)]
-  
-  return(temp_data)
-}
-
-# Function to update the global 'sipp' dataset with a new file
-update_sipp_data <- function(file_path) {
-  # 1) Load the new file
-  new_data <- process_sipp_file(file_path)
-  
-  # 2) Merge into global sipp table
-  if (nrow(sipp) == 0) {
-    sipp <<- new_data
-  } else {
-    sipp <<- rbindlist(list(sipp, new_data), use.names = TRUE, fill = TRUE)
-  }
-  
-  # 3) Order by ID, YEAR, MONTHCODE
-  setorder(sipp, ID, YEAR, MONTHCODE)
-  
-  # 4) Calculate month-to-month change in net worth (lag by person ID)
-  sipp[, THNETWORTH := THNETWORTH - THVAL_HOME]
-  sipp[, SAVINGS_RATE := fifelse((THNETWORTH - THNETWORTH_LAG) < 0, 
-                                 0, 
-                                 THNETWORTH - THNETWORTH_LAG) / (TFTOTINC +1)]
-  # 5) Define household type
-  sipp[, HOUSEHOLD_TYPE := fifelse(
-    EBORNUS == 1, "Native",
-    fifelse(ECITIZEN == 1, "Naturalized", "Non-Citizen")
-  )]
-}
+# Clear any temporary objects from the global environment after sourcing this file,
+# leaving only the process_year function.
+rm(list = setdiff(ls(), "process_year"))
