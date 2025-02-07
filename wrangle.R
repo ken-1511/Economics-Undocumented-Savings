@@ -49,7 +49,7 @@ SIPP_wrangled <- SIPP_combined %>%
   slice(1) %>% 
   ungroup() %>%
   # Remove helper variables.
-  select(-info_count, -non_citizen)
+  select(-non_citizen)
 
 # Clear temporary objects, leaving only SIPP_wrangled, SIPP_combined, folder_path, and process_year.
 rm(list = setdiff(ls(), c("SIPP_wrangled", "SIPP_combined", "folder_path", "process_year")))
