@@ -23,7 +23,8 @@ process_year <- function(file_path) {
     "SSUID",        # Household-case identifier
     "TFTOTINC",     # Household income
     "TPRLOANAMT",   # Total personal loan amount
-#    "HHNUMP",       # Number of people in the household
+    "RHNUMPER",     # Number of people in the household
+    "EORIGIN",
     "EBORNUS",      # Born in the US
     "ECITIZEN",     # Citizenship status
     "ENATCIT",      # How citizenship was acquired
