@@ -1,4 +1,4 @@
-# sipp_processing.R
+# monthly_processing.R
 # ------------------
 # Clear the environment except for the folder_path variable.
 rm(list = setdiff(ls(), "folder_path"))
@@ -7,8 +7,8 @@ rm(list = setdiff(ls(), "folder_path"))
 library(tidyverse)
 library(data.table)
 
-# Source process_year.R so that the process_year() function is available.
-source("process_year.R")
+# Source process_monthly.R so that the process_monthly() function is available.
+source("00 process_monthly.R")
 
 # Ensure that folder_path is defined (it should be provided by master_runtime.R).
 if (!exists("folder_path")) {
@@ -24,7 +24,7 @@ sipp_list <- list()
 # Loop over each file and process it using the process_year() function.
 for (file in file_list) {
   message("Processing file: ", file)
-  processed_data <- process_year(file)
+  processed_data <- process_monthly(file)
   sipp_list[[file]] <- processed_data
 }
 

@@ -35,7 +35,7 @@ avg_SR_plot <- SIPP_savings %>%
        color = "Citizenship") +
   theme_minimal()
 
-ggsave("Plots/avg_savings_rate_feb11.png", plot = avg_SR_plot, width = 8, height = 6)
+ggsave("Plots/avg_savings_rate_feb13.png", plot = avg_SR_plot, width = 8, height = 6)
 
 #### Plot 2: Average Household Size (RHNUMPER) by Citizenship ####
 avg_RHNUMPER_plot <- SIPP_savings %>%
@@ -52,7 +52,7 @@ avg_RHNUMPER_plot <- SIPP_savings %>%
        color = "Citizenship") +
   theme_minimal()
 
-ggsave("Plots/avg_RHNUMPER_feb11.png", plot = avg_RHNUMPER_plot, width = 8, height = 6)
+ggsave("Plots/avg_RHNUMPER_feb13.png", plot = avg_RHNUMPER_plot, width = 8, height = 6)
 
 #### Plot 3: Weighted Average Savings Rate by Citizenship ####
 # Weighting SR by household size (RHNUMPER)
@@ -71,7 +71,7 @@ weighted_SR_plot <- SIPP_savings %>%
        color = "Citizenship") +
   theme_minimal()
 
-ggsave("Plots/weighted_avg_savings_rate_feb11.png", plot = weighted_SR_plot, width = 8, height = 6)
+ggsave("Plots/weighted_avg_savings_rate_feb13.png", plot = weighted_SR_plot, width = 8, height = 6)
 
 #### Plot 4: Average Savings Rate by Ethnicity (EORIGIN) ####
 # Recode EORIGIN into a new variable 'ethnicity'
@@ -93,7 +93,7 @@ ethnicity_SR_plot <- SIPP_savings %>%
        color = "Ethnicity") +
   theme_minimal()
 
-ggsave("Plots/ethnicity_savings_rate_feb11.png", plot = ethnicity_SR_plot, width = 8, height = 6)
+ggsave("Plots/ethnicity_savings_rate_feb13.png", plot = ethnicity_SR_plot, width = 8, height = 6)
 
 #### Clean up the environment
-rm(list = setdiff(ls(), c("SIPP_savings", "SIPP_wrangled", "SIPP_combined", "folder_path", "process_year")))
+rm(list = setdiff(ls(), c("SIPP_savings", "SIPP_wrangled", "SIPP_combined", "folder_path", "process_annual")))
