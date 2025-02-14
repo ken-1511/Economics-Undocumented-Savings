@@ -13,39 +13,11 @@
 # For ethnicity, we assume EORIGIN==2 indicates Hispanic; all others are Non-Hispanic.
 
 library(tidyverse)
-library(Hmisc)  # for wtd.quantile
-
 
 # Ensure the output folder exists
 if (!dir.exists("Plots")) {
   dir.create("Plots")
 }
-
-weighted_summary_quantiles <- SIPP_savings %>%
-  group_by(year, citizenship) %>%
-  summarize(
-    weighted_mean_SR = sum(SR * RHNUMPER, na.rm = TRUE) / sum(RHNUMPER, na.rm = TRUE),
-    lower_Q = as.numeric(wtd.quantile(SR, weights = RHNUMPER, probs = 0.25, na.rm = TRUE)),
-    upper_Q = as.numeric(wtd.quantile(SR, weights = RHNUMPER, probs = 0.75, na.rm = TRUE))
-  ) %>%
-  ungroup()
-
-weighted_gradient_plot <- ggplot(weighted_summary_quantiles, 
-                                 aes(x = year, color = citizenship, fill = citizenship)) +
-  geom_line(aes(y = weighted_mean_SR), size = 1) +
-  geom_point(aes(y = weighted_mean_SR), size = 3) +
-  geom_ribbon(aes(ymin = lower_Q, ymax = upper_Q), alpha = 0.3, color = NA) +
-  scale_y_continuous(limits = c(-20, 20)) +
-  labs(title = "Weighted Average Savings Rate with IQR by Citizenship over Time",
-       subtitle = "Shaded area represents the 1st–3rd quartile range; y-axis limited to -20 to 20",
-       x = "Year",
-       y = "Weighted Average Savings Rate (%)",
-       color = "Citizenship",
-       fill = "Citizenship") +
-  theme_minimal()
-
-ggsave("Plots/weighted_avg_savings_rate_gradient_feb11.png", 
-       plot = weighted_gradient_plot, width = 8, height = 6)
 
 #### Plot 1: Average Savings Rate by Citizenship ####
 avg_SR_plot <- SIPP_savings %>%
@@ -73,7 +45,6 @@ avg_RHNUMPER_plot <- SIPP_savings %>%
   ggplot(aes(x = year, y = avg_RHNUMPER, color = citizenship)) +
   geom_line(size = 1) +
   geom_point(size = 3) +
-  scale_y_continuous(limits = c(1, 4.5), breaks = seq(1, 4.5, by = 0.5)) +
   labs(title = "Average Household Size (RHNUMPER) by Citizenship over Time",
        subtitle = "Household Size (Number of People)",
        x = "Year",
