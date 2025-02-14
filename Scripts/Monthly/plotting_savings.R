@@ -96,4 +96,4 @@ ethnicity_SR_plot <- SIPP_savings %>%
 ggsave("Plots/ethnicity_savings_rate_feb11.png", plot = ethnicity_SR_plot, width = 8, height = 6)
 
 #### Clean up the environment
-rm(list = setdiff(ls(), c("SIPP_savings", "SIPP_wrangled", "folder_path", "process_year")))
+rm(list = setdiff(ls(), c("SIPP_savings", "SIPP_wrangled", "SIPP_combined", "folder_path", "process_year")))

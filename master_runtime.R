@@ -17,6 +17,7 @@ folder_path <- "C:/Users/dhoward/Documents/0196 Econ Thesis/SIPP"
 message("Selected folder: ", folder_path)
 
 # Source and run the wrangle.R script
+setwd("./Scripts/Annual")
 source("sipp_processing.R")
 source("wrangle.R")
 source("savings.R")

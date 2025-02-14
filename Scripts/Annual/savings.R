@@ -51,4 +51,4 @@ SIPP_savings <- SIPP_wrangled %>%
   select(-FVS, -AMS)
 
 # Clean up the environment, leaving only SIPP_savings, SIPP_wrangled, folder_path, and process_year.
-rm(list = setdiff(ls(), c("SIPP_savings", "SIPP_wrangled", "folder_path", "process_year")))
+rm(list = setdiff(ls(), c("SIPP_savings", "SIPP_wrangled", "SIPP_combined", "folder_path", "process_year")))
