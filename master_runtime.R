@@ -23,6 +23,7 @@ source("02 wrangle.R")
 source("03 savings.R")
 source("04 plotting_savings.R")
 rm(list = setdiff(ls(), c("SIPP_savings", "folder_path", "process_annual")))
+
 # Monthly folder
 setwd(rstudioapi::getActiveProject())
 setwd("./Scripts/Monthly")
