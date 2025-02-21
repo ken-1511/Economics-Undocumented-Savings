@@ -1,19 +1,19 @@
 # plotting.R
 # -----------
 # This script creates four plots:
-# 1. Average Savings Rate by Citizenship over time (y-axis limited to -20 to 20).
+# 1. Average Savings Rate by Citizenship over time (y-axis limited to -15 to 15 in increments of 2.5).
 # 2. Average Household Size (RHNUMPER) by Citizenship over time.
-# 3. Weighted Average Savings Rate (weighted by RHNUMPER) by Citizenship over time (y-axis -20 to 20).
-# 4. Average Savings Rate by Ethnicity (Hispanic vs. Non-Hispanic) over time (y-axis -20 to 20).
+# 3. Weighted Average Savings Rate (weighted by RHNUMPER) by Citizenship over time (y-axis -15 to 15 in increments of 2.5).
+# 4. Average Savings Rate by Ethnicity (Hispanic vs. Non-Hispanic) over time (y-axis -15 to 15 in increments of 2.5).
 #
-# All plots are saved in the folder "./Plots/" with descriptive filenames ending with "feb11".
+# All plots are saved in the folder "./Plots/" with descriptive filenames ending with "feb13".
 #
 # Assumptions: SIPP_savings contains the variables:
 #   year, SR, citizenship, RHNUMPER, EORIGIN.
 # For ethnicity, we assume EORIGIN==2 indicates Hispanic; all others are Non-Hispanic.
 
 library(tidyverse)
-
+setwd(rstudioapi::getActiveProject())
 # Ensure the output folder exists
 if (!dir.exists("Plots")) {
   dir.create("Plots")
@@ -27,15 +27,16 @@ avg_SR_plot <- SIPP_savings %>%
   ggplot(aes(x = year, y = avg_SR, color = citizenship)) +
   geom_line(size = 1) +
   geom_point(size = 3) +
-  scale_y_continuous(limits = c(-20, 20)) +
+  scale_y_continuous(limits = c(-15, 15), breaks = seq(-15, 15, 2.5)) +
+  scale_x_continuous(breaks = unique(SIPP_savings$year)) +  # Ensure all years are displayed
   labs(title = "Average Savings Rate by Citizenship over Time",
-       subtitle = "Savings Rate (%) (y-axis limited to -20 to 20)",
+       subtitle = "Savings Rate (%) (y-axis limited to -15 to 15, increments of 2.5)",
        x = "Year",
        y = "Average Savings Rate (%)",
        color = "Citizenship") +
   theme_minimal()
 
-ggsave("Plots/avg_savings_rate_feb13.png", plot = avg_SR_plot, width = 8, height = 6)
+ggsave("Plots/avg_savings_rate.png", plot = avg_SR_plot, width = 8, height = 6)
 
 #### Plot 2: Average Household Size (RHNUMPER) by Citizenship ####
 avg_RHNUMPER_plot <- SIPP_savings %>%
@@ -45,6 +46,7 @@ avg_RHNUMPER_plot <- SIPP_savings %>%
   ggplot(aes(x = year, y = avg_RHNUMPER, color = citizenship)) +
   geom_line(size = 1) +
   geom_point(size = 3) +
+  scale_x_continuous(breaks = unique(SIPP_savings$year)) +  # Ensure all years are displayed
   labs(title = "Average Household Size (RHNUMPER) by Citizenship over Time",
        subtitle = "Household Size (Number of People)",
        x = "Year",
@@ -52,7 +54,7 @@ avg_RHNUMPER_plot <- SIPP_savings %>%
        color = "Citizenship") +
   theme_minimal()
 
-ggsave("Plots/avg_RHNUMPER_feb13.png", plot = avg_RHNUMPER_plot, width = 8, height = 6)
+ggsave("Plots/avg_RHNUMPER.png", plot = avg_RHNUMPER_plot, width = 8, height = 6)
 
 #### Plot 3: Weighted Average Savings Rate by Citizenship ####
 # Weighting SR by household size (RHNUMPER)
@@ -63,15 +65,16 @@ weighted_SR_plot <- SIPP_savings %>%
   ggplot(aes(x = year, y = weighted_avg_SR, color = citizenship)) +
   geom_line(size = 1) +
   geom_point(size = 3) +
-  scale_y_continuous(limits = c(-20, 20)) +
+  scale_y_continuous(limits = c(-15, 15), breaks = seq(-15, 15, 2.5)) +
+  scale_x_continuous(breaks = unique(SIPP_savings$year)) +  # Ensure all years are displayed
   labs(title = "Weighted Average Savings Rate by Citizenship over Time",
-       subtitle = "Weighted by Household Size (RHNUMPER); y-axis limited to -20 to 20",
+       subtitle = "Weighted by Household Size (RHNUMPER); y-axis limited to -15 to 15",
        x = "Year",
        y = "Weighted Average Savings Rate (%)",
        color = "Citizenship") +
   theme_minimal()
 
-ggsave("Plots/weighted_avg_savings_rate_feb13.png", plot = weighted_SR_plot, width = 8, height = 6)
+ggsave("Plots/weighted_avg_savings_rate.png", plot = weighted_SR_plot, width = 8, height = 6)
 
 #### Plot 4: Average Savings Rate by Ethnicity (EORIGIN) ####
 # Recode EORIGIN into a new variable 'ethnicity'
@@ -85,15 +88,18 @@ ethnicity_SR_plot <- SIPP_savings %>%
   ggplot(aes(x = year, y = avg_SR, color = ethnicity)) +
   geom_line(size = 1) +
   geom_point(size = 3) +
-  scale_y_continuous(limits = c(-20, 20)) +
+  scale_y_continuous(limits = c(-15, 15), breaks = seq(-15, 15, 2.5)) +
+  scale_x_continuous(breaks = unique(SIPP_savings$year)) +  # Ensure all years are displayed
   labs(title = "Average Savings Rate by Ethnicity over Time",
-       subtitle = "Comparison of Hispanics vs. Non-Hispanics (y-axis limited to -20 to 20)",
+       subtitle = "Comparison of Hispanics vs. Non-Hispanics (y-axis limited to -15 to 15)",
        x = "Year",
        y = "Average Savings Rate (%)",
        color = "Ethnicity") +
   theme_minimal()
 
-ggsave("Plots/ethnicity_savings_rate_feb13.png", plot = ethnicity_SR_plot, width = 8, height = 6)
+ggsave("Plots/ethnicity_savings_rate.png", plot = ethnicity_SR_plot, width = 8, height = 6)
 
 #### Clean up the environment
 rm(list = setdiff(ls(), c("SIPP_savings", "SIPP_wrangled", "SIPP_combined", "folder_path", "process_annual")))
+message("Plots saved successfully.")
+setwd("./Scripts/Annual")

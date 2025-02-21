@@ -31,7 +31,7 @@ for (file in file_list) {
 # Combine all processed tibbles into one tibble.
 SIPP_combined <- bind_rows(sipp_list)
 
-# Optionally, save the combined tibble for later use (e.g., as an RDS file).
+# Save the combined tibble for later use (e.g., as an RDS file).
 saveRDS(SIPP_combined, file = file.path(folder_path, "sipp_combined.rds"))
 message("Processing complete. Combined data saved as 'sipp_combined.rds' in folder: ", folder_path)
 

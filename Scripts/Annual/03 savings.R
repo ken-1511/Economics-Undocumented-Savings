@@ -49,6 +49,6 @@ SIPP_savings <- SIPP_wrangled %>%
   filter(TMWKHRS > 0) %>%
   # Remove temporary columns FVS and AMS, but keep prev_adjusted_net_worth.
   select(-FVS, -AMS)
-
+message("Savings rate computation complete. SIPP_savings dataset created.")
 # Clean up the environment, leaving only SIPP_savings, SIPP_wrangled, folder_path, and process_year.
 rm(list = setdiff(ls(), c("SIPP_savings", "SIPP_wrangled", "SIPP_combined", "folder_path", "process_year")))
