@@ -42,7 +42,7 @@ SIPP_wrangled <- SIPP_combined %>%
     non_citizen = if_else(citizenship == "Native", 0, 1)
   ) %>%
   # Remove redundant variables from the earlier processing.
-  select(-c(WPFINWGT, EBORNUS, ECITIZEN, ENATCIT, TIMSTAT, TFTOTINC, TPRLOANAMT, THNETWORTH, THVAL_HOME)) %>%
+  select(-c(EBORNUS, ECITIZEN, ENATCIT, TIMSTAT, TFTOTINC, TPRLOANAMT, THNETWORTH, THVAL_HOME)) %>%
   # Group by household and year; select one record per group.
   group_by(SSUID, year) %>%
   arrange(desc(non_citizen), PNUM) %>% 

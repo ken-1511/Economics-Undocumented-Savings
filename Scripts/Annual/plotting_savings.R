@@ -3,7 +3,7 @@
 # This script creates four plots:
 # 1. Average Savings Rate by Citizenship over time (y-axis limited to -15 to 15 in increments of 2.5).
 # 2. Average Household Size (RHNUMPER) by Citizenship over time.
-# 3. Weighted Average Savings Rate (weighted by RHNUMPER) by Citizenship over time (y-axis -15 to 15 in increments of 2.5).
+# 3. Household-Size Adjusted Average Savings Rate by Citizenship over time (adjusted by RHNUMPER; y-axis -15 to 15 in increments of 2.5).
 # 4. Average Savings Rate by Ethnicity (Hispanic vs. Non-Hispanic) over time (y-axis -15 to 15 in increments of 2.5).
 #
 # All plots are saved in the folder "./Plots/" with descriptive filenames ending with "feb13".
@@ -56,25 +56,25 @@ avg_RHNUMPER_plot <- SIPP_savings %>%
 
 ggsave("Plots/avg_RHNUMPER.png", plot = avg_RHNUMPER_plot, width = 8, height = 6)
 
-#### Plot 3: Weighted Average Savings Rate by Citizenship ####
-# Weighting SR by household size (RHNUMPER)
-weighted_SR_plot <- SIPP_savings %>%
+#### Plot 3: Household-Size Adjusted Average Savings Rate by Citizenship ####
+# Adjusting SR by household size (RHNUMPER)
+adjusted_SR_plot <- SIPP_savings %>%
   group_by(year, citizenship) %>%
-  summarize(weighted_avg_SR = sum(SR * RHNUMPER, na.rm = TRUE) / sum(RHNUMPER, na.rm = TRUE)) %>%
+  summarize(adjusted_avg_SR = sum(SR * RHNUMPER, na.rm = TRUE) / sum(RHNUMPER, na.rm = TRUE)) %>%
   ungroup() %>%
-  ggplot(aes(x = year, y = weighted_avg_SR, color = citizenship)) +
+  ggplot(aes(x = year, y = adjusted_avg_SR, color = citizenship)) +
   geom_line(size = 1) +
   geom_point(size = 3) +
   scale_y_continuous(limits = c(-15, 15), breaks = seq(-15, 15, 2.5)) +
   scale_x_continuous(breaks = unique(SIPP_savings$year)) +  # Ensure all years are displayed
-  labs(title = "Weighted Average Savings Rate by Citizenship over Time",
-       subtitle = "Weighted by Household Size (RHNUMPER); y-axis limited to -15 to 15",
+  labs(title = "Household-Size Adjusted Average Savings Rate by Citizenship over Time",
+       subtitle = "Adjusted by Household Size (RHNUMPER)",
        x = "Year",
-       y = "Weighted Average Savings Rate (%)",
+       y = "Household-Size Adjusted Savings Rate (%)",
        color = "Citizenship") +
   theme_minimal()
 
-ggsave("Plots/weighted_avg_savings_rate.png", plot = weighted_SR_plot, width = 8, height = 6)
+ggsave("Plots/adjusted_avg_savings_rate.png", plot = adjusted_SR_plot, width = 8, height = 6)
 
 #### Plot 4: Average Savings Rate by Ethnicity (EORIGIN) ####
 # Recode EORIGIN into a new variable 'ethnicity'
