@@ -8,10 +8,10 @@ library(tidyverse)
 library(data.table)
 
 # Source process_annual.R so that the process_annual() function is available.
+# source("2008 Processing/2008 process_runtime.R") ** data from 2008 has unresolved issues
+
 source("00 process_annual.R")
-source("2008 Processing/2008 process_runtime.R")
 source("Replicate Weights/rw_csv.R")
-source("Replicate Weights/rw_dat.R")
 
 # Ensure that folder_path is defined (it should be provided by master_runtime.R).
 if (!exists("folder_path")) {
