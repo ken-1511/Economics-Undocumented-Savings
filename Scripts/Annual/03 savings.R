@@ -25,8 +25,8 @@
 
 library(tidyverse)
 
-# Calculate the present value factor for 12 monthly payments at r = 0.07/12.
-denom <- (1 - (1 + 0.07/12)^(-12)) / (0.07/12)
+# Calculate the present value factor for 12 monthly payments at r = 0.05/12.
+denom <- (1 - (1 + 0.05/12)^(-12)) / (0.05/12)
 
 SIPP_savings <- SIPP_wrangled %>%
   # Group by household (SSUID) and retain only households with more than one record.
@@ -40,15 +40,14 @@ SIPP_savings <- SIPP_wrangled %>%
   filter(!is.na(prev_adjusted_net_worth)) %>%
   # Compute the net worth change (FVS), then compute AMS and the savings rate (SR).
   mutate(
-    FVS = adjusted_net_worth - 1.07 * prev_adjusted_net_worth,
-    AMS = FVS / denom,
+    AMS = if_else(THVAL_BANK > 0, (adjusted_net_worth - 1.05 * prev_adjusted_net_worth) / denom, ((adjusted_net_worth - prev_adjusted_net_worth) / 12)),
     SR  = AMS / household_income * 100,
     SR  = if_else(SR > 100 | SR < -100, as.numeric(NA), SR)
   ) %>%
   # Filter out records with non-positive time worked.
   filter(TMWKHRS > 0) %>%
   # Remove temporary columns FVS and AMS, but keep prev_adjusted_net_worth.
-  select(-FVS, -AMS)
+  select(-AMS)
 message("Savings rate computation complete. SIPP_savings dataset created.")
 # Clean up the environment, leaving only SIPP_savings, SIPP_wrangled, folder_path, and process_year.
 rm(list = setdiff(ls(), c("SIPP_savings", "SIPP_wrangled", "SIPP_combined", "folder_path", "process_year")))

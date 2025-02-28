@@ -32,7 +32,8 @@ process_annual <- function(file_path) {
     "ENATCIT",      # How citizenship was acquired
     "TIMSTAT",      # Immigration entry status
     "THVAL_HOME",   # Value of home property
-    "THNETWORTH"    # Net worth
+    "THNETWORTH",    # Net worth
+    "THVAL_BANK"   # Total value in bank accounts/ financial institutions
   )
   
   # Read only the header (nrows = 0) and convert names to uppercase.
@@ -65,6 +66,20 @@ process_annual <- function(file_path) {
   #   - TFTOTINC (household income) is nonnegative
   #   - TMWKHRS (average time worked) is nonnegative
   df <- df %>% filter(MONTHCODE == 12, TFTOTINC >= 0, TMWKHRS >= 0)
+  # Retrieve the replicate weight tibble name matching the extracted year
+  rw_name <- paste0("rw", extracted_year)
+  # Get the tibble object from its name
+  rw_tibble <- get(rw_name)
+  
+  # Compatible data types for joining
+  df <- df %>% 
+    mutate(across(c(SSUID, PNUM), as.double))
+  rw_tibble <- rw_tibble %>% 
+    mutate(across(c(SSUID, PNUM), as.double))
+  
+  # Perform a left join on SSUID and PNUM
+  df <- left_join(df, rw_tibble, by = c("SSUID", "PNUM"))
+  
   
   return(df)
 }
