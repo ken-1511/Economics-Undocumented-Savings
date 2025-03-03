@@ -1,4 +1,4 @@
-# process_year.R
+# process_monthly.R
 # --------------
 # Load required libraries
 library(data.table)
@@ -11,7 +11,7 @@ library(tidyverse)
 #   2. Reads only the desired columns (by first reading the header and converting to uppercase).
 #   3. Renames columns to standard uppercase names.
 #   4. Filters the data for month 12 records and nonnegative household income and work hours.
-process_monthly <- function(file_path) {
+process_annual <- function(file_path) {
   # Extract a four-digit number (year) from the file name and subtract 1.
   extracted_year <- as.numeric(str_extract(basename(file_path), "[0-9]{4}"))
   year_val <- extracted_year - 1
@@ -32,7 +32,8 @@ process_monthly <- function(file_path) {
     "ENATCIT",      # How citizenship was acquired
     "TIMSTAT",      # Immigration entry status
     "THVAL_HOME",   # Value of home property
-    "THNETWORTH"    # Net worth
+    "THNETWORTH",    # Net worth
+    "THVAL_BANK"   # Total value in bank accounts/ financial institutions
   )
   
   # Read only the header (nrows = 0) and convert names to uppercase.
@@ -61,10 +62,22 @@ process_monthly <- function(file_path) {
   df <- df %>% mutate(year = year_val)
   
   # Filter to keep only records for which:
-  #   - MONTHCODE equals 12 (December)
   #   - TFTOTINC (household income) is nonnegative
   #   - TMWKHRS (average time worked) is nonnegative
   df <- df %>% filter(TFTOTINC >= 0, TMWKHRS >= 0)
+  # Retrieve the replicate weight tibble name matching the extracted year
+  rw_name <- paste0("rw", extracted_year)
+  # Get the tibble object from its name
+  rw_tibble <- get(rw_name)
+  
+  # Compatible data types for joining
+  df <- df %>% 
+    mutate(across(c(SSUID, PNUM), as.double))
+  rw_tibble <- rw_tibble %>% 
+    mutate(across(c(SSUID, PNUM), as.double))
+  
+  # Perform a left join on SSUID and PNUM
+  df <- left_join(df, rw_tibble, by = c("SSUID", "PNUM"),  multiple = "all")
   
   return(df)
 }

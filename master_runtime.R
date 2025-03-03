@@ -31,6 +31,7 @@ rm(list = setdiff(ls(), c("SIPP_savings", "folder_path", "process_annual")))
 # Monthly folder
 setwd(rstudioapi::getActiveProject())
 setwd("./Scripts/Monthly")
-source("01 monthly_processing.R")
-
+source("11 monthly_processing.R")
+source("12 wrangle.R")
+source("13 weight.R")
 getwd()

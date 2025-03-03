@@ -9,10 +9,9 @@ library(survey)
 # ----------------------------------------------------------
 # cleans NAs
 rep_col_pattern = "^REPWGT\\d+$"
-rep_cols <- names(SIPP_savings)[grepl(rep_col_pattern, names(SIPP_savings))]
-savings_clean <- SIPP_savings %>%
+rep_cols <- names(m_SIPP_wrangled)[grepl(rep_col_pattern, names(m_SIPP_wrangled))]
+monthly_clean <- m_SIPP_wrangled %>%
   filter(!is.na(WPFINWGT)) %>% 
-  filter(!is.na(SR)) %>%
   filter(WPFINWGT > 0) %>%
   mutate(across(all_of(rep_cols), ~ if_else(is.na(.), WPFINWGT, .))) %>%
   mutate(REPWGT0 = WPFINWGT) %>%
@@ -23,14 +22,11 @@ savings_clean <- SIPP_savings %>%
 
 # Create the survey design object
 sipp.svy <- svrepdesign(
-  data = savings_clean,
+  data = monthly_clean,
   weights = ~WPFINWGT,
   repweights = "REPWGT[1-9]+",  # Adjust this regex as needed for your dataset
   type = "Fay",
   rho = 0.5,
   mse = TRUE)
 
-# Compute the weighted means
 SR_citizenship <- svyby(~SR, ~citizenship + year, sipp.svy, svymean, na.rm = TRUE)
-SR_bank <- svyby(~SR, ~bank + year, sipp.svy, svymean, na.rm = TRUE)
-bank_citizenship <- svyby(~bank, ~citizenship + year, sipp.svy, svymean, na.rm = TRUE)

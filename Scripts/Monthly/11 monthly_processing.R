@@ -7,8 +7,11 @@ rm(list = setdiff(ls(), "folder_path"))
 library(tidyverse)
 library(data.table)
 
-# Source process_monthly.R so that the process_monthly() function is available.
+# Source process_annual.R so that the process_annual() function is available.
+# source("2008 Processing/2008 process_runtime.R") ** data from 2008 has unresolved issues
+
 source("00 process_monthly.R")
+source("Replicate Weights/rw_csv.R")
 
 # Ensure that folder_path is defined (it should be provided by master_runtime.R).
 if (!exists("folder_path")) {
@@ -24,16 +27,16 @@ sipp_list <- list()
 # Loop over each file and process it using the process_year() function.
 for (file in file_list) {
   message("Processing file: ", file)
-  processed_data <- process_monthly(file)
+  processed_data <- process_annual(file)
   sipp_list[[file]] <- processed_data
 }
 
 # Combine all processed tibbles into one tibble.
-SIPP_combined <- bind_rows(sipp_list)
+m_SIPP_combined <- bind_rows(sipp_list)
 
-# Optionally, save the combined tibble for later use (e.g., as an RDS file).
-saveRDS(SIPP_combined, file = file.path(folder_path, "sipp_combined.rds"))
+# Save the combined tibble for later use (e.g., as an RDS file).
+saveRDS(m_SIPP_combined, file = file.path(folder_path, "sipp_combined.rds"))
 message("Processing complete. Combined data saved as 'sipp_combined.rds' in folder: ", folder_path)
 
 # Clear any temporary objects, leaving only SIPP_combined, folder_path, and process_year.
-rm(list = setdiff(ls(), c("SIPP_combined", "folder_path", "process_year")))
+rm(list = setdiff(ls(), c("m_SIPP_combined", "folder_path", "process_monthly")))
