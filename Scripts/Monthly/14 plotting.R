@@ -1,13 +1,19 @@
 # plotting.R
 # -----------
-ggplot(SR_citizenship, aes(x = year, y = SR, color = citizenship, group = citizenship)) +
+library(ggplot2)
+library(lubridate)
+
+# Create a date variable from 'year' and 'month' columns (using the first day of each month)
+Unemp$date <- as.Date(with(Unemp, paste(year, month, "01", sep = "-")))
+
+# Replace 'your_y_variable' with the appropriate variable for your y-axis.
+ggplot(Unemp, aes(x = date, y = your_y_variable, color = citizenship, group = citizenship)) +
   geom_hline(yintercept = 0, color = "black", size = 1) +
   geom_line(size = 1) +
   geom_point(size = 2) +
-  scale_y_continuous(limits = c(-5, 15), breaks = seq(-5, 12.5, 2.5)) +
-  scale_x_continuous(breaks = unique(SIPP_savings$year)) +
-  labs(title = "Weighted Mean Savings Rate Over Time by Citizenship",
-       x = "Year \n(data runs from December year prior to December listed year)\nExample: 2014 = Dec 2013 -> Dec 2014",
-       y = "Weighted Mean Savings Rate (%)") +
-  theme_minimal()
-
+  scale_x_date(date_breaks = "1 month", date_labels = "%b %Y") +
+  labs(title = "",
+       x = "Time",
+       y = "") +
+  theme_minimal() +
+  theme(axis.text.x = element_text(angle = 45, hjust = 1))

@@ -8,6 +8,7 @@ library(survey)
 # a design effect of 0.5. The results are stored in variables
 # ----------------------------------------------------------
 # cleans NAs
+
 rep_col_pattern = "^REPWGT\\d+$"
 rep_cols <- names(m_SIPP_wrangled)[grepl(rep_col_pattern, names(m_SIPP_wrangled))]
 monthly_clean <- m_SIPP_wrangled %>%
@@ -19,9 +20,8 @@ monthly_clean <- m_SIPP_wrangled %>%
   mutate(across(matches("^REPWGT\\d+$"), ~ . * RHNUMPER)) %>%
   mutate(bank = if_else(THVAL_BANK > 0, "Yes", "No"))
 
-
 # Create the survey design object
-sipp.svy <- svrepdesign(
+unemp.svy <- svrepdesign(
   data = monthly_clean,
   weights = ~WPFINWGT,
   repweights = "REPWGT[1-9]+",  # Adjust this regex as needed for your dataset
@@ -29,4 +29,4 @@ sipp.svy <- svrepdesign(
   rho = 0.5,
   mse = TRUE)
 
-SR_citizenship <- svyby(~SR, ~citizenship + year, sipp.svy, svymean, na.rm = TRUE)
+unemp <- svyby(~(ENJFLAG==1 & ENJ_LKWRK==1), ~citizenship + MONTHCODE + year, unemp.svy, svymean, na.rm = TRUE)

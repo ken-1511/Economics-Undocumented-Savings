@@ -32,9 +32,11 @@ process_annual <- function(file_path) {
     "ENATCIT",      # How citizenship was acquired
     "TIMSTAT",      # Immigration entry status
     "THVAL_HOME",   # Value of home property
-    "THNETWORTH",    # Net worth
-    "THVAL_BANK"   # Total value in bank accounts/ financial institutions
-  )
+    "THNETWORTH",   # Net worth
+    "THVAL_BANK",   # Total value in bank accounts/ financial institutions
+    "ENJFLAG",      # Job loss indicator
+    "ENJ_LKWRK"     # looking for work
+    )
   
   # Read only the header (nrows = 0) and convert names to uppercase.
   header <- names(fread(file_path, sep = "|", nrows = 0))
@@ -60,11 +62,7 @@ process_annual <- function(file_path) {
   
   # Add the new 'year' column.
   df <- df %>% mutate(year = year_val)
-  
-  # Filter to keep only records for which:
-  #   - TFTOTINC (household income) is nonnegative
-  #   - TMWKHRS (average time worked) is nonnegative
-  df <- df %>% filter(TFTOTINC >= 0, TMWKHRS >= 0)
+  df <- df %>% filter(TFTOTINC >= 0)
   # Retrieve the replicate weight tibble name matching the extracted year
   rw_name <- paste0("rw", extracted_year)
   # Get the tibble object from its name

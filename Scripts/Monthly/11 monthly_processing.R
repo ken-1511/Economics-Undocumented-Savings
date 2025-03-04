@@ -10,7 +10,7 @@ library(data.table)
 # Source process_annual.R so that the process_annual() function is available.
 # source("2008 Processing/2008 process_runtime.R") ** data from 2008 has unresolved issues
 
-source("00 process_monthly.R")
+source("10 process_monthly.R")
 source("Replicate Weights/rw_csv.R")
 
 # Ensure that folder_path is defined (it should be provided by master_runtime.R).
