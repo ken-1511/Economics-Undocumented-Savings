@@ -51,6 +51,8 @@ SIPP_wrangled <- SIPP_combined %>%
   # Remove helper variables.
   select(-non_citizen)
 
+SIPP_wrangled <- SIPP_wrangled %>%
+  left_join(unemployment, by = c("SSUID", "year"))
+
 # Clear temporary objects, leaving only SIPP_wrangled, SIPP_combined, folder_path, and process_year.
-rm(list = setdiff(ls(), c("SIPP_wrangled", "SIPP_combined", "folder_path", "process_year")))
 message("Wrangling complete. SIPP_wrangled dataset created.")

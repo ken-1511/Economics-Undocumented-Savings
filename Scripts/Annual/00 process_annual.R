@@ -60,7 +60,7 @@ process_annual <- function(file_path) {
   
   # Add the new 'year' column.
   df <- df %>% mutate(year = year_val)
-  
+  df <- df %>% mutate(income = TFTOTINC*12)
   # Filter to keep only records for which:
   #   - MONTHCODE equals 12 (December)
   #   - TFTOTINC (household income) is nonnegative

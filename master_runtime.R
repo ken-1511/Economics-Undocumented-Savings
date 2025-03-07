@@ -15,6 +15,14 @@ library(data.table)
 folder_path <- "C:/Users/dhoward/Documents/0196 Econ Thesis/SIPP"
 message("Selected folder: ", folder_path)
 
+# Monthly folder
+setwd(rstudioapi::getActiveProject())
+setwd("./Scripts/Monthly")
+source("11 monthly_processing.R")
+source("12 wrangle.R")
+
+rm(list = setdiff(ls(),c("unemployment", "folder_path", "monthly_SIPP_wrangled")))
+
 # Annual folder
 setwd(rstudioapi::getActiveProject())
 setwd("./Scripts/Annual")
@@ -26,12 +34,8 @@ source("05 plotting.R")
 source("06 statistics.R")
 source("07 analysis.R")
 
-rm(list = setdiff(ls(), c("SIPP_savings", "folder_path", "process_annual")))
+# Very intensive process, run optionally to view monthly unemployment data
+# source("13 weight.R")
+# source("14 plotting.R")
 
-# Monthly folder
-setwd(rstudioapi::getActiveProject())
-setwd("./Scripts/Monthly")
-source("11 monthly_processing.R")
-source("12 wrangle.R")
-source("13 weight.R")
-source("14 plotting.R")
+rm(list = setdiff(ls(),"unemployment", "folder_path", "monthly_sipp_wrangled", "unemp.svy", "unemp"))

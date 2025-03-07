@@ -34,3 +34,5 @@ sipp.svy <- svrepdesign(
 SR_citizenship <- svyby(~SR, ~citizenship + year, sipp.svy, svymean, na.rm = TRUE)
 SR_bank <- svyby(~SR, ~bank + year, sipp.svy, svymean, na.rm = TRUE)
 bank_citizenship <- svyby(~bank, ~citizenship + year, sipp.svy, svymean, na.rm = TRUE)
+income_citizenship <- svyby(~income, ~citizenship + year, sipp.svy, svymean, na.rm = TRUE)
+AMS_citizenship <- svyby(~Monthly_Savings_Amount, ~citizenship + year, sipp.svy, svymean, na.rm = TRUE)

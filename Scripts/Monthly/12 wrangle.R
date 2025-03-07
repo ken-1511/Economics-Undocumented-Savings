@@ -17,7 +17,7 @@
 
 library(tidyverse)
 
-m_SIPP_wrangled <- m_SIPP_combined %>%
+monthly_SIPP_wrangled <- m_SIPP_combined %>%
   mutate(
     citizenship = case_when(
       EBORNUS == 1 ~ "Native",
@@ -43,10 +43,14 @@ m_SIPP_wrangled <- m_SIPP_combined %>%
   arrange(desc(non_citizen), PNUM) %>% 
   slice(1) %>% 
   ungroup()
+
+# save unemployment data
+unemployment <- monthly_SIPP_wrangled %>%
+  group_by(SSUID, year) %>%
+  summarise(months_unemployed = sum(ENJFLAG == 1 & ENJ_LKWRK == 1, na.rm = TRUE), .groups = "drop")
   
-m_SIPP_wrangled <- m_SIPP_wrangled %>%
+monthly_SIPP_wrangled <- monthly_SIPP_wrangled %>%
   select(-non_citizen)
 
 # Clear temporary objects, leaving only SIPP_wrangled, SIPP_combined, folder_path, and process_year.
-rm(list = setdiff(ls(), c("m_SIPP_wrangled", "m_SIPP_combined", "folder_path", "process_year")))
 message("Wrangling complete. SIPP_wrangled dataset created.")

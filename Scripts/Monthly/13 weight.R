@@ -10,8 +10,8 @@ library(survey)
 # cleans NAs
 
 rep_col_pattern = "^REPWGT\\d+$"
-rep_cols <- names(m_SIPP_wrangled)[grepl(rep_col_pattern, names(m_SIPP_wrangled))]
-monthly_clean <- m_SIPP_wrangled %>%
+rep_cols <- names(monthly_SIPP_wrangled)[grepl(rep_col_pattern, names(monthly_SIPP_wrangled))]
+monthly_clean <- monthly_SIPP_wrangled %>%
   filter(!is.na(WPFINWGT)) %>% 
   filter(WPFINWGT > 0) %>%
   mutate(across(all_of(rep_cols), ~ if_else(is.na(.), WPFINWGT, .))) %>%

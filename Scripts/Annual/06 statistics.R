@@ -8,7 +8,7 @@
 library(tidyverse)
 
 # Create the output folder if it doesn't exist.
-if (!dir.exists(paste0(rstudioapi::getActiveProject(),"Statistics"))) {
-  dir.create(paste0(rstudioapi::getActiveProject(),"Statistics"), recursive = TRUE)
+if (!dir.exists(paste0(rstudioapi::getActiveProject(),"/Statistics"))) {
+  dir.create(paste0(rstudioapi::getActiveProject(),"/Statistics"), recursive = TRUE)
 }
 

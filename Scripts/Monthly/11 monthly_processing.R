@@ -38,5 +38,3 @@ m_SIPP_combined <- bind_rows(sipp_list)
 saveRDS(m_SIPP_combined, file = file.path(folder_path, "sipp_combined.rds"))
 message("Processing complete. Combined data saved as 'sipp_combined.rds' in folder: ", folder_path)
 
-# Clear any temporary objects, leaving only SIPP_combined, folder_path, and process_year.
-rm(list = setdiff(ls(), c("m_SIPP_combined", "folder_path", "process_monthly")))

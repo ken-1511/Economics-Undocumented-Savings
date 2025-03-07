@@ -1,8 +1,5 @@
 # annual_processing.R
 # ------------------
-# Clear the environment except for the folder_path variable.
-rm(list = setdiff(ls(), "folder_path"))
-
 # Load required libraries.
 library(tidyverse)
 library(data.table)
@@ -39,4 +36,3 @@ saveRDS(SIPP_combined, file = file.path(folder_path, "sipp_combined.rds"))
 message("Processing complete. Combined data saved as 'sipp_combined.rds' in folder: ", folder_path)
 
 # Clear any temporary objects, leaving only SIPP_combined, folder_path, and process_year.
-rm(list = setdiff(ls(), c("SIPP_combined", "folder_path", "process_annual")))
