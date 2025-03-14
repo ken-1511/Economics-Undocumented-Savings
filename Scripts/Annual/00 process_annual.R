@@ -32,8 +32,10 @@ process_annual <- function(file_path) {
     "ENATCIT",      # How citizenship was acquired
     "TIMSTAT",      # Immigration entry status
     "THVAL_HOME",   # Value of home property
-    "THNETWORTH",    # Net worth
-    "THVAL_BANK"   # Total value in bank accounts/ financial institutions
+    "THNETWORTH",   # Net worth
+    "TRACE",        # Race
+    "TAGE_EHC",     # Age
+    "THVAL_BANK"    # Total value in bank accounts/ financial institutions
   )
   
   # Read only the header (nrows = 0) and convert names to uppercase.

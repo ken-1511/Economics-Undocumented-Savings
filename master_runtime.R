@@ -31,11 +31,10 @@ source("02 wrangle.R")
 source("03 savings.R")
 source("04 weight.R")
 source("05 plotting.R")
-source("06 statistics.R")
-source("07 analysis.R")
-
+source("06 model.R")
+source("07 refine.R")
+source("08 diagnostics.R")
 # Very intensive process, run optionally to view monthly unemployment data
 # source("13 weight.R")
 # source("14 plotting.R")
 
-rm(list = setdiff(ls(),"unemployment", "folder_path", "monthly_sipp_wrangled", "unemp.svy", "unemp"))

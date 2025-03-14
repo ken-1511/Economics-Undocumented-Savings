@@ -27,14 +27,9 @@ sipp_list <- list()
 # Loop over each file and process it using the process_year() function.
 for (file in file_list) {
   message("Processing file: ", file)
-  processed_data <- process_annual(file)
+  processed_data <- process_monthly(file)
   sipp_list[[file]] <- processed_data
 }
 
 # Combine all processed tibbles into one tibble.
 m_SIPP_combined <- bind_rows(sipp_list)
-
-# Save the combined tibble for later use (e.g., as an RDS file).
-saveRDS(m_SIPP_combined, file = file.path(folder_path, "sipp_combined.rds"))
-message("Processing complete. Combined data saved as 'sipp_combined.rds' in folder: ", folder_path)
-

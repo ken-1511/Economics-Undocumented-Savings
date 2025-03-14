@@ -14,7 +14,7 @@ for(file in csv_files) {
     rename_with(toupper) %>%
     rename_with(~ stringr::str_replace(., "^REPWT(\\d+)$", "REPWGT\\1")) %>%
     filter(MONTHCODE == 12) %>%
-    select(SSUID, PNUM, matches("^REPWGT\\d+$"))
+    dplyr::select(SSUID, PNUM, matches("^REPWGT\\d+$"))
 
   
   # Extract the file's base name (without extension)
