@@ -34,7 +34,7 @@ data <- data %>%
   mutate(
     undocumented = ifelse(citizenship == "Undocumented", 1, 0),
     covid_pandemic = ifelse(year >= 2020, 1, 0),  
-    trump_administration = ifelse(year >= 2017 & year <= 2020, 1, 0),  
+    trump = ifelse(year >= 2017 & year <= 2020, 1, 0),  
     savings_rate = as.numeric(SR),  
     unbanked = ifelse(bank == "No", 1, 0),
     household_size = as.numeric(RHNUMPER),   
@@ -72,8 +72,8 @@ seg_model <- segmented(lm_model, seg.Z = ~ household_inc,
 summary(seg_model)
 
 lm_model <- lm(savings_rate ~ 
-                 trump_administration +
-                 undocumented:trump_administration +
+                 trump +
+                 undocumented:trump +
                  household_inc +
                  undocumented +
                  unbanked +
