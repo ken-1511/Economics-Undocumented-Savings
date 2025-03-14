@@ -2,7 +2,7 @@
 # -----------------
 # This script loads required packages, prompts the user for the folder path using a file explorer,
 # and then runs the SIPP processing.
-
+options(scipen = 999)
 # Load required packages
 library(tcltk)
 library(tidyverse)
@@ -32,8 +32,9 @@ source("03 savings.R")
 source("04 weight.R")
 source("05 plotting.R")
 source("06 model.R")
-source("07 refine.R")
-source("08 diagnostics.R")
+source("07 replicate.R")
+source("08 model_final.R")
+source("09 plotting.R")
 # Very intensive process, run optionally to view monthly unemployment data
 # source("13 weight.R")
 # source("14 plotting.R")
