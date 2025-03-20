@@ -44,10 +44,11 @@ data <- data %>%
     savings_log = log((savings_rate + 101)),
     race = as_factor(TRACE),
     hispanic = as_factor(EORIGIN),
-    age = TAGE_EHC
+    age = TAGE_EHC,
+    education = if_else(EEDUC >= 39, 0, 1)
   ) %>%
   filter(!is.na(savings_rate) & !is.na(undocumented) & !is.na(covid_pandemic) & 
-           !is.na(trump_administration) & !is.na(unbanked) & !is.na(household_inc) & 
+           !is.na(trump) & !is.na(unbanked) & !is.na(household_inc) & 
            !is.na(household_size), !is.na(months_unemployed))  # Drop rows with NA in any model variable
 
 
@@ -71,7 +72,7 @@ seg_model <- segmented(lm_model, seg.Z = ~ household_inc,
 # Display the summary of the segmented model.
 summary(seg_model)
 
-lm_model <- lm(savings_rate ~ 
+lm_model_trump <- lm(savings_rate ~ 
                  trump +
                  undocumented:trump +
                  household_inc +
@@ -86,6 +87,8 @@ lm_model <- lm(savings_rate ~
 
 # Apply segmented regression on household_inc,
 # using its median as a starting value for the breakpoint.
-seg_model <- segmented(lm_model, seg.Z = ~ household_inc, 
+seg_model_trump <- segmented(lm_model_trump, seg.Z = ~ household_inc, 
                        psi = median(data$household_inc, na.rm = TRUE))
-summary(seg_model)
+summary(seg_model_trump)
+
+saveRDS(data, file = paste0(rstudioapi::getActiveProject(), "/Data/data.rds"))

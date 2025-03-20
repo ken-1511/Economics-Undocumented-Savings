@@ -2,10 +2,10 @@ library(foreach)
 library(doSNOW)
 library(segmented)
 
-# Rename your main data frame to rep_data and ensure all columns are atomic
-rep_data <- lapply(data, function(x) {
+# Convert your main data object into a data.frame with atomic columns
+rep_data <- as_tibble(lapply(data, function(x) {
   if (is.list(x)) unlist(x) else x
-})
+}))
 
 # Automatically identify replicate weight column names using a regex.
 replicate_names <- grep("^REPWGT[0-9]+$", names(rep_data), value = TRUE)
@@ -30,6 +30,7 @@ replicate_results <- foreach(i = 1:R, .packages = c("segmented"), .options.snow 
   
   # Ensure the replicate weight is numeric
   rep_weight <- as.numeric(rep_data[[weight_var]])
+  
   # Compute psi value as the median of household_inc
   psi_val <- as.numeric(median(rep_data$household_inc, na.rm = TRUE))
   
@@ -78,7 +79,7 @@ coefficients_rep_trump <- lapply(replicate_results, `[[`, "trump")
 coefficients_mat <- do.call(rbind, coefficients_rep)
 coefficients_mat_trump <- do.call(rbind, coefficients_rep_trump)
 
-# Assume you have already run your full sample models in your environment:
+# Assume you have already run your full sample segmented models and stored them in seg_model and seg_model_trump
 full_coef <- coef(seg_model)
 full_coef_trump <- coef(seg_model_trump)
 
