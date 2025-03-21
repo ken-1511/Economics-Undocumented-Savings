@@ -31,7 +31,7 @@ ggplot(bank_citizenship, aes(x = year, y = bankNo, color = citizenship, fill = c
   geom_point(size = 2) +
   geom_smooth(method = "loess", se = TRUE, level = .90, size = 1, alpha = 0.3) +
   scale_x_continuous(breaks = unique(SIPP_savings$year)) +
-  labs(title = "Bank Ownership by Household Citizenship",
+  labs(title = "        Figure 2\n                        Unbanked by Household Citizenship",
        subtitle = "bands represent 90% confidence intervals",
        x = "Year \n(data runs from December year prior to December listed year)\nExample: 2014 = Dec 2013 -> Dec 2014",
        y = "Proportion Without Banking Access") +

@@ -42,14 +42,14 @@ SIPP_wrangled <- SIPP_combined %>%
     non_citizen = if_else(citizenship == "Native", 0, 1)
   ) %>%
   # Remove redundant variables from the earlier processing.
-  select(-c(EBORNUS, ECITIZEN, ENATCIT, TIMSTAT, TFTOTINC, TPRLOANAMT, THNETWORTH, THVAL_HOME)) %>%
+  dplyr::select(-c(EBORNUS, ECITIZEN, ENATCIT, TIMSTAT, TFTOTINC, TPRLOANAMT, THNETWORTH, THVAL_HOME)) %>%
   # Group by household and year; select one record per group.
   group_by(SSUID, year) %>%
   arrange(desc(non_citizen), PNUM) %>% 
   slice(1) %>% 
   ungroup() %>%
   # Remove helper variables.
-  select(-non_citizen)
+  dplyr::select(-non_citizen)
 
 SIPP_wrangled <- SIPP_wrangled %>%
   left_join(unemployment, by = c("SSUID", "year"))

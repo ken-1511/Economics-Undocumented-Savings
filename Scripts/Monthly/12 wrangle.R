@@ -37,7 +37,7 @@ monthly_SIPP_wrangled <- m_SIPP_combined %>%
     non_citizen = if_else(citizenship == "Native", 0, 1)
   ) %>%
   # Remove redundant variables from the earlier processing.
-  select(-c(EBORNUS, ECITIZEN, ENATCIT, TIMSTAT, TPRLOANAMT, THNETWORTH, THVAL_HOME)) %>%
+  dplyr::select(-c(EBORNUS, ECITIZEN, ENATCIT, TIMSTAT, TPRLOANAMT, THNETWORTH, THVAL_HOME)) %>%
   # Group by household and year; select one record per group.
   group_by(SSUID, year, MONTHCODE) %>%
   arrange(desc(non_citizen), PNUM) %>% 
@@ -50,7 +50,7 @@ unemployment <- monthly_SIPP_wrangled %>%
   summarise(months_unemployed = sum(ENJFLAG == 1 & ENJ_LKWRK == 1, na.rm = TRUE), .groups = "drop")
   
 monthly_SIPP_wrangled <- monthly_SIPP_wrangled %>%
-  select(-non_citizen)
+  dplyr::select(-non_citizen)
 
 # Clear temporary objects, leaving only SIPP_wrangled, SIPP_combined, folder_path, and process_year.
 message("Wrangling complete. SIPP_wrangled dataset created.")

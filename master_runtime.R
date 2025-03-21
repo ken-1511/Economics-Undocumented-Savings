@@ -36,6 +36,6 @@ source("07 replicate.R")
 source("08 model_final.R")
 source("09 plotting.R")
 # Very intensive process, run optionally to view monthly unemployment data
-# source("13 weight.R")
-# source("14 plotting.R")
+source("13 weight.R")
+source("14 plotting.R")
 

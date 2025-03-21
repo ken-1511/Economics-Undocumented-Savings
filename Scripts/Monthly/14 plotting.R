@@ -21,7 +21,7 @@ ggplot(unemp, aes(x = date, y = unemployment_rate, color = citizenship, group = 
   scale_y_continuous(limits = c(0, 0.12), labels = scales::percent_format(accuracy = 1)) +  # Set y-axis from 0% to 12%
   scale_x_date(breaks = axis_dates, date_labels = "%b %Y") +  # Show only June & December
   geom_hline(yintercept = 0, color = "black", size = 1) +  # Ensure this is added in the ggplot() object
-  labs(title = "Unemployment Rate Over Time by Citizenship",
+  labs(title = "        Figure 3\n                        Unemployment Rate Over Time by Citizenship",
        x = "Time",
        y = "Unemployment Rate (%)") +
   theme_minimal() +

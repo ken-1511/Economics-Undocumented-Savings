@@ -51,7 +51,7 @@ final_plot <- ggplot() +
   # Manually set the colors for the curves.
   scale_color_manual(name = "Curves", 
                      values = c("Density" = "blue", "Normal" = "red")) +
-  labs(title = "Savings Rate Density vs. Normal Distribution",
+  labs(title = "        Figure 1\n                   Savings Rate Density vs. Normal Distribution",
        x = "Savings Rate",
        y = "Density") +
   theme_minimal()

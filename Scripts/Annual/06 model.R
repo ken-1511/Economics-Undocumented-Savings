@@ -51,7 +51,7 @@ data <- data %>%
            !is.na(trump) & !is.na(unbanked) & !is.na(household_inc) & 
            !is.na(household_size), !is.na(months_unemployed))  # Drop rows with NA in any model variable
 
-
+median_income <- 73920
 # Fit a weighted linear model with the desired main effects and interactions.
 lm_model <- lm(savings_rate ~ 
                  household_inc +
@@ -67,7 +67,7 @@ lm_model <- lm(savings_rate ~
 # Apply segmented regression on household_inc,
 # using its median as a starting value for the breakpoint.
 seg_model <- segmented(lm_model, seg.Z = ~ household_inc, 
-                       psi = median(data$household_inc, na.rm = TRUE))
+                       psi = median_income)
 
 # Display the summary of the segmented model.
 summary(seg_model)
@@ -88,7 +88,7 @@ lm_model_trump <- lm(savings_rate ~
 # Apply segmented regression on household_inc,
 # using its median as a starting value for the breakpoint.
 seg_model_trump <- segmented(lm_model_trump, seg.Z = ~ household_inc, 
-                       psi = median(data$household_inc, na.rm = TRUE))
+                       psi = median_income)
 summary(seg_model_trump)
 
 saveRDS(data, file = paste0(rstudioapi::getActiveProject(), "/Data/data.rds"))
