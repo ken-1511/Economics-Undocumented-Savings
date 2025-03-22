@@ -42,8 +42,8 @@ data <- data %>%
     months_unemployed = months_unemployed,
     year = year,
     savings_log = log((savings_rate + 101)),
-    race = as_factor(TRACE),
-    hispanic = as_factor(EORIGIN),
+    race = as.factor(TRACE),
+    hispanic = as.factor(EORIGIN),
     age = TAGE_EHC,
     education = if_else(EEDUC >= 39, 0, 1)
   ) %>%
@@ -92,3 +92,44 @@ seg_model_trump <- segmented(lm_model_trump, seg.Z = ~ household_inc,
 summary(seg_model_trump)
 
 saveRDS(data, file = paste0(rstudioapi::getActiveProject(), "/Data/data.rds"))
+
+lm_model_e <- lm(savings_rate ~ 
+                 education +
+                 education:undocumented +
+                 household_inc +
+                 undocumented +
+                 unbanked +
+                 months_unemployed + 
+                 household_inc:undocumented +
+                 real_gdp_growth +
+                 age,
+               data = data, 
+               weights = WPFINWGT)
+
+# Apply segmented regression on household_inc,
+# using its median as a starting value for the breakpoint.
+seg_model_e <- segmented(lm_model_e, seg.Z = ~ household_inc, 
+                       psi = median_income)
+
+# Display the summary of the segmented model.
+summary(seg_model_e)
+
+lm_model_r <- lm(savings_rate ~ 
+                   race +
+                   household_inc +
+                   undocumented +
+                   unbanked +
+                   months_unemployed + 
+                   household_inc:undocumented +
+                   real_gdp_growth +
+                   age,
+                 data = data, 
+                 weights = WPFINWGT)
+
+# Apply segmented regression on household_inc,
+# using its median as a starting value for the breakpoint.
+seg_model_r <- segmented(lm_model_r, seg.Z = ~ household_inc, 
+                         psi = median_income)
+
+# Display the summary of the segmented model.
+summary(seg_model_r)
